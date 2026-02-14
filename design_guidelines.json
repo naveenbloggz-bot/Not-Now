@@ -1,0 +1,150 @@
+{
+  "identity": {
+    "persona": "E1 - The Anti-AI Designer",
+    "tone": "Luxury, Minimalist, High-Contrast, Swiss-Style",
+    "principles": [
+      "Fusion over Imitation: Mixing luxury fashion with Swiss distinctness.",
+      "Emotion First: Desire and exclusivity.",
+      "Content is King: The product is the hero.",
+      "Negative Space: White space is the primary luxury signal.",
+      "Contrast: Absolute Black vs Absolute White."
+    ]
+  },
+  "typography": {
+    "font_family": {
+      "headings": "Montserrat, sans-serif",
+      "body": "Lato, sans-serif"
+    },
+    "weights": {
+      "headings": "Bold (700) or Black (900) for impact, Light (300) for elegance",
+      "body": "Regular (400)"
+    },
+    "styles": {
+      "h1": "text-5xl md:text-7xl font-bold tracking-tighter uppercase",
+      "h2": "text-3xl md:text-5xl font-light tracking-wide uppercase",
+      "h3": "text-xl md:text-2xl font-bold tracking-widest",
+      "body": "text-base md:text-lg leading-relaxed text-gray-800",
+      "label": "text-xs font-bold uppercase tracking-[0.2em]"
+    }
+  },
+  "colors": {
+    "palette": {
+      "background": "#FFFFFF",
+      "foreground": "#000000",
+      "primary": "#000000",
+      "secondary": "#FFFFFF",
+      "accent": "#000000",
+      "border": "#E5E5E5",
+      "muted": "#F5F5F5",
+      "error": "#FF0000"
+    },
+    "usage": {
+      "background": "bg-white",
+      "text_primary": "text-black",
+      "text_secondary": "text-gray-600",
+      "button_primary": "bg-black text-white hover:bg-gray-900",
+      "button_secondary": "bg-white text-black border border-black hover:bg-black hover:text-white"
+    }
+  },
+  "layout": {
+    "container": "max-w-[1920px] mx-auto px-4 md:px-12",
+    "grid": {
+      "base": "grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-8",
+      "product_grid": "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-y-12 gap-x-8"
+    },
+    "spacing": {
+      "section_padding": "py-20 md:py-32",
+      "element_spacing": "space-y-6"
+    }
+  },
+  "components": {
+    "button": {
+      "style": "rounded-none uppercase tracking-[0.15em] font-bold text-sm h-12 px-8 transition-all duration-300",
+      "variants": {
+        "primary": "bg-black text-white border border-black hover:bg-transparent hover:text-black",
+        "outline": "bg-transparent text-black border border-black hover:bg-black hover:text-white"
+      }
+    },
+    "input": {
+      "style": "border-0 border-b border-black rounded-none px-0 py-3 bg-transparent focus:ring-0 focus:border-black placeholder:text-gray-400"
+    },
+    "card": {
+      "style": "group relative bg-white overflow-hidden",
+      "image": "aspect-[3/4] object-cover w-full transition-transform duration-700 group-hover:scale-105"
+    },
+    "navbar": {
+      "style": "sticky top-0 z-50 w-full bg-white/90 backdrop-blur-md border-b border-gray-100",
+      "link": "uppercase tracking-[0.1em] text-xs font-bold hover:opacity-50 transition-opacity"
+    }
+  },
+  "images": {
+    "hero_banners": [
+      {
+        "url": "https://images.unsplash.com/photo-1699431763539-a83758780d6f?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzNTl8MHwxfHNlYXJjaHwzfHxsdXh1cnklMjBmYXNoaW9uJTIwZWRpdG9yaWFsJTIwYmxhY2slMjBhbmQlMjB3aGl0ZSUyMG1pbmltYWxpc3R8ZW58MHx8fHwxNzcxMDg1Njk5fDA&ixlib=rb-4.1.0&q=85",
+        "alt": "Woman walking with luxury bag",
+        "category": "hero"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1604180038685-34eb0f155bd2?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzNTl8MHwxfHNlYXJjaHwyfHxsdXh1cnklMjBmYXNoaW9uJTIwZWRpdG9yaWFsJTIwYmxhY2slMjBhbmQlMjB3aGl0ZSUyMG1pbmltYWxpc3R8ZW58MHx8fHwxNzcxMDg1Njk5fDA&ixlib=rb-4.1.0&q=85",
+        "alt": "Woman in white dress",
+        "category": "hero"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1601926299866-6a5c9bfa6be0?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzNTl8MHwxfHNlYXJjaHwxfHxsdXh1cnklMjBmYXNoaW9uJTIwZWRpdG9yaWFsJTIwYmxhY2slMjBhbmQlMjB3aGl0ZSUyMG1pbmltYWxpc3R8ZW58MHx8fHwxNzcxMDg1Njk5fDA&ixlib=rb-4.1.0&q=85",
+        "alt": "Minimalist clothes rack",
+        "category": "hero"
+      }
+    ],
+    "products": [
+      {
+        "url": "https://images.unsplash.com/photo-1763189851330-23f36450bbde?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1NzZ8MHwxfHNlYXJjaHwxfHxsdXh1cnklMjBwcm9kdWN0JTIwcGhvdG9ncmFwaHklMjBtaW5pbWFsaXN0JTIwd2hpdGUlMjBiYWNrZ3JvdW5kfGVufDB8fHx8MTc3MTA4NTY5OXww&ixlib=rb-4.1.0&q=85",
+        "alt": "Antique Gold Pocket Watch",
+        "category": "product"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1682764330940-5802113eaaa4?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1NzZ8MHwxfHNlYXJjaHwyfHxsdXh1cnklMjBwcm9kdWN0JTIwcGhvdG9ncmFwaHklMjBtaW5pbWFsaXN0JTIwd2hpdGUlMjBiYWNrZ3JvdW5kfGVufDB8fHx8MTc3MTA4NTY5OXww&ixlib=rb-4.1.0&q=85",
+        "alt": "Luxury Candle",
+        "category": "product"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1683290016699-cffb29c74e18?crop=entropy&cs=srgb&fm=jpg&ixid=M3w3NDk1NzZ8MHwxfHNlYXJjaHwzfHxsdXh1cnklMjBwcm9kdWN0JTIwcGhvdG9ncmFwaHklMjBtaW5pbWFsaXN0JTIwd2hpdGUlMjBiYWNrZ3JvdW5kfGVufDB8fHx8MTc3MTA4NTY5OXww&ixlib=rb-4.1.0&q=85",
+        "alt": "Minimalist Vase",
+        "category": "product"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1685527645763-2cd1b47a2cd2?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzNTl8MHwxfHNlYXJjaHw0fHxsdXh1cnklMjBmYXNoaW9uJTIwZWRpdG9yaWFsJTIwYmxhY2slMjBhbmQlMjB3aGl0ZSUyMG1pbmltYWxpc3R8ZW58MHx8fHwxNzcxMDg1Njk5fDA&ixlib=rb-4.1.0&q=85",
+        "alt": "Beauty Product Flatlay",
+        "category": "product"
+      }
+    ],
+    "reviews": [
+      {
+        "url": "https://images.unsplash.com/photo-1595331292515-a6449d5215e9?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMzV8MHwxfHNlYXJjaHwzfHxzdHVkaW8lMjBwb3J0cmFpdCUyMGJsYWNrJTIwYW5kJTIwd2hpdGUlMjBtaW5pbWFsaXN0JTIwcGVyc29ufGVufDB8fHx8MTc3MTA4NTcwMHww&ixlib=rb-4.1.0&q=85",
+        "alt": "Man in suit",
+        "category": "review"
+      },
+      {
+        "url": "https://images.unsplash.com/photo-1533613019002-6c68afb725c0?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjAzMzV8MHwxfHNlYXJjaHwyfHxzdHVkaW8lMjBwb3J0cmFpdCUyMGJsYWNrJTIwYW5kJTIwd2hpdGUlMjBtaW5pbWFsaXN0JTIwcGVyc29ufGVufDB8fHx8MTc3MTA4NTcwMHww&ixlib=rb-4.1.0&q=85",
+        "alt": "Minimalist portrait",
+        "category": "review"
+      }
+    ]
+  },
+  "universal_guidelines": [
+    "Do not use gradients. Stick to solid black and white.",
+    "Do not center everything blindly. Use the grid.",
+    "Micro-animations are mandatory for every interactive element.",
+    "Use 'sonner' for toasts.",
+    "All interactive elements must have 'data-testid'.",
+    "Do not use generic 'Inter' font. Use Montserrat/Lato pairing."
+  ],
+  "instructions_to_main_agent": [
+    "Install 'lucide-react' for icons.",
+    "Install '@radix-ui/react-slot' for Shadcn components if needed.",
+    "Install 'framer-motion' for animations.",
+    "Use 'clsx' and 'tailwind-merge' for class handling.",
+    "Ensure 'Montserrat' and 'Lato' are imported via Google Fonts in index.css.",
+    "Create a 'Layout' component that enforces the 'max-w-[1920px] mx-auto' constraint.",
+    "Implement the 'HeroBanner' as a slider using 'embla-carousel-react' or similar lightweight library."
+  ]
+}
