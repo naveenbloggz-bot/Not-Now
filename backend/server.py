@@ -144,8 +144,8 @@ class Order(BaseModel):
     user_email: str
     items: List[OrderItem]
     total: float
-    status: str = \"pending\"
-    payment_status: str = \"pending\"
+    status: str = "pending"
+    payment_status: str = "pending"
     session_id: Optional[str] = None
     created_at: str = Field(default_factory=lambda: datetime.now(timezone.utc).isoformat())
 
