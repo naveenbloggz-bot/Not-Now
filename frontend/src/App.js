@@ -24,13 +24,13 @@ const ProtectedRoute = ({ children }) => {
   
   if (loading) {
     return (
-      <div className=\"min-h-screen flex items-center justify-center\">
-        <p className=\"text-lg\">Loading...</p>
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-lg">Loading...</p>
       </div>
     );
   }
   
-  return user ? children : <Navigate to=\"/login\" />;
+  return user ? children : <Navigate to="/login" />;
 };
 
 // Admin Route Component
@@ -39,13 +39,13 @@ const AdminRoute = ({ children }) => {
   
   if (loading) {
     return (
-      <div className=\"min-h-screen flex items-center justify-center\">
-        <p className=\"text-lg\">Loading...</p>
+      <div className="min-h-screen flex items-center justify-center">
+        <p className="text-lg">Loading...</p>
       </div>
     );
   }
   
-  return user?.is_admin ? children : <Navigate to=\"/\" />;
+  return user?.is_admin ? children : <Navigate to="/" />;
 };
 
 function App() {
@@ -53,21 +53,21 @@ function App() {
     <BrowserRouter>
       <AuthProvider>
         <CartProvider>
-          <div className=\"App\">
+          <div className="App">
             <Routes>
-              <Route path=\"/\" element={<Layout />}>
+              <Route path="/" element={<Layout />}>
                 <Route index element={<Home />} />
-                <Route path=\"shop\" element={<Shop />} />
-                <Route path=\"product/:id\" element={<ProductDetail />} />
-                <Route path=\"about\" element={<About />} />
-                <Route path=\"contact\" element={<Contact />} />
-                <Route path=\"reviews\" element={<Reviews />} />
-                <Route path=\"login\" element={<Login />} />
-                <Route path=\"register\" element={<Register />} />
+                <Route path="shop" element={<Shop />} />
+                <Route path="product/:id" element={<ProductDetail />} />
+                <Route path="about" element={<About />} />
+                <Route path="contact" element={<Contact />} />
+                <Route path="reviews" element={<Reviews />} />
+                <Route path="login" element={<Login />} />
+                <Route path="register" element={<Register />} />
                 
                 {/* Protected Routes */}
                 <Route
-                  path=\"cart\"
+                  path="cart"
                   element={
                     <ProtectedRoute>
                       <Cart />
@@ -75,7 +75,7 @@ function App() {
                   }
                 />
                 <Route
-                  path=\"checkout\"
+                  path="checkout"
                   element={
                     <ProtectedRoute>
                       <Checkout />
@@ -83,7 +83,7 @@ function App() {
                   }
                 />
                 <Route
-                  path=\"checkout/success\"
+                  path="checkout/success"
                   element={
                     <ProtectedRoute>
                       <CheckoutSuccess />
@@ -91,7 +91,7 @@ function App() {
                   }
                 />
                 <Route
-                  path=\"dashboard\"
+                  path="dashboard"
                   element={
                     <ProtectedRoute>
                       <Dashboard />
@@ -101,7 +101,7 @@ function App() {
                 
                 {/* Admin Routes */}
                 <Route
-                  path=\"admin\"
+                  path="admin"
                   element={
                     <AdminRoute>
                       <Admin />
@@ -110,7 +110,7 @@ function App() {
                 />
               </Route>
             </Routes>
-            <Toaster position=\"top-center\" />
+            <Toaster position="top-center" />
           </div>
         </CartProvider>
       </AuthProvider>

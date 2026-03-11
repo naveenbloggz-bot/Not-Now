@@ -176,14 +176,14 @@ class ReviewApproval(BaseModel):
 
 # Site Settings Models
 class SiteSettings(BaseModel):
-    brand_name: str = \"Luxury Store\"
-    logo_url: str = \"\"
-    contact_email: str = \"info@luxurystore.com\"
-    contact_phone: str = \"+1 (555) 123-4567\"
-    contact_address: str = \"123 Luxury Ave, New York, NY 10001\"
-    about_text: str = \"We are committed to delivering exceptional luxury products.\"
-    facebook_url: str = \"\"
-    instagram_url: str = \"\"
+    brand_name: str = "Luxury Store"
+    logo_url: str = ""
+    contact_email: str = "info@luxurystore.com"
+    contact_phone: str = "+1 (555) 123-4567"
+    contact_address: str = "123 Luxury Ave, New York, NY 10001"
+    about_text: str = "We are committed to delivering exceptional luxury products."
+    facebook_url: str = ""
+    instagram_url: str = ""
 
 class SiteSettingsUpdate(BaseModel):
     brand_name: Optional[str] = None
@@ -197,257 +197,257 @@ class SiteSettingsUpdate(BaseModel):
 
 # ==================== AUTH ROUTES ====================
 
-@api_router.post(\"/auth/register\", response_model=AuthResponse)
+@api_router.post("/auth/register", response_model=AuthResponse)
 async def register(user_data: UserRegister):
     # Check if user exists
-    existing_user = await db.users.find_one({\"email\": user_data.email})
+    existing_user = await db.users.find_one({"email": user_data.email})
     if existing_user:
-        raise HTTPException(status_code=400, detail=\"Email already registered\")
+        raise HTTPException(status_code=400, detail="Email already registered")
     
     # Create user
     user_id = str(uuid.uuid4())
     user_doc = {
-        \"id\": user_id,
-        \"email\": user_data.email,
-        \"password\": get_password_hash(user_data.password),
-        \"name\": user_data.name,
-        \"is_admin\": False,
-        \"created_at\": datetime.now(timezone.utc).isoformat()
+        "id": user_id,
+        "email": user_data.email,
+        "password": get_password_hash(user_data.password),
+        "name": user_data.name,
+        "is_admin": False,
+        "created_at": datetime.now(timezone.utc).isoformat()
     }
     
     await db.users.insert_one(user_doc)
     
     # Create token
-    token = create_access_token({\"sub\": user_id, \"email\": user_data.email, \"is_admin\": False})
+    token = create_access_token({"sub": user_id, "email": user_data.email, "is_admin": False})
     
     return AuthResponse(
         token=token,
         user=UserResponse(id=user_id, email=user_data.email, name=user_data.name, is_admin=False)
     )
 
-@api_router.post(\"/auth/login\", response_model=AuthResponse)
+@api_router.post("/auth/login", response_model=AuthResponse)
 async def login(credentials: UserLogin):
-    user = await db.users.find_one({\"email\": credentials.email})
-    if not user or not verify_password(credentials.password, user[\"password\"]):
-        raise HTTPException(status_code=401, detail=\"Invalid credentials\")
+    user = await db.users.find_one({"email": credentials.email})
+    if not user or not verify_password(credentials.password, user["password"]):
+        raise HTTPException(status_code=401, detail="Invalid credentials")
     
     token = create_access_token({
-        \"sub\": user[\"id\"],
-        \"email\": user[\"email\"],
-        \"is_admin\": user.get(\"is_admin\", False)
+        "sub": user["id"],
+        "email": user["email"],
+        "is_admin": user.get("is_admin", False)
     })
     
     return AuthResponse(
         token=token,
         user=UserResponse(
-            id=user[\"id\"],
-            email=user[\"email\"],
-            name=user[\"name\"],
-            is_admin=user.get(\"is_admin\", False)
+            id=user["id"],
+            email=user["email"],
+            name=user["name"],
+            is_admin=user.get("is_admin", False)
         )
     )
 
-@api_router.get(\"/auth/me\", response_model=UserResponse)
+@api_router.get("/auth/me", response_model=UserResponse)
 async def get_me(current_user: dict = Depends(get_current_user)):
-    user = await db.users.find_one({\"id\": current_user[\"sub\"]})
+    user = await db.users.find_one({"id": current_user["sub"]})
     if not user:
-        raise HTTPException(status_code=404, detail=\"User not found\")
+        raise HTTPException(status_code=404, detail="User not found")
     
     return UserResponse(
-        id=user[\"id\"],
-        email=user[\"email\"],
-        name=user[\"name\"],
-        is_admin=user.get(\"is_admin\", False)
+        id=user["id"],
+        email=user["email"],
+        name=user["name"],
+        is_admin=user.get("is_admin", False)
     )
 
 # ==================== PRODUCT ROUTES ====================
 
-@api_router.get(\"/products\", response_model=List[Product])
+@api_router.get("/products", response_model=List[Product])
 async def get_products(category: Optional[str] = None, search: Optional[str] = None):
     query = {}
     if category:
-        query[\"category\"] = category
+        query["category"] = category
     if search:
-        query[\"name\"] = {\"$regex\": search, \"$options\": \"i\"}
+        query["name"] = {"$regex": search, "$options": "i"}
     
-    products = await db.products.find(query, {\"_id\": 0}).to_list(1000)
+    products = await db.products.find(query, {"_id": 0}).to_list(1000)
     return products
 
-@api_router.get(\"/products/{product_id}\", response_model=Product)
+@api_router.get("/products/{product_id}", response_model=Product)
 async def get_product(product_id: str):
-    product = await db.products.find_one({\"id\": product_id}, {\"_id\": 0})
+    product = await db.products.find_one({"id": product_id}, {"_id": 0})
     if not product:
-        raise HTTPException(status_code=404, detail=\"Product not found\")
+        raise HTTPException(status_code=404, detail="Product not found")
     return product
 
-@api_router.post(\"/products\", response_model=Product)
+@api_router.post("/products", response_model=Product)
 async def create_product(product: ProductCreate, current_user: dict = Depends(get_current_admin)):
     product_doc = Product(**product.model_dump())
     await db.products.insert_one(product_doc.model_dump())
     return product_doc
 
-@api_router.put(\"/products/{product_id}\", response_model=Product)
+@api_router.put("/products/{product_id}", response_model=Product)
 async def update_product(product_id: str, updates: ProductUpdate, current_user: dict = Depends(get_current_admin)):
-    product = await db.products.find_one({\"id\": product_id}, {\"_id\": 0})
+    product = await db.products.find_one({"id": product_id}, {"_id": 0})
     if not product:
-        raise HTTPException(status_code=404, detail=\"Product not found\")
+        raise HTTPException(status_code=404, detail="Product not found")
     
     update_data = {k: v for k, v in updates.model_dump().items() if v is not None}
     if update_data:
-        await db.products.update_one({\"id\": product_id}, {\"$set\": update_data})
+        await db.products.update_one({"id": product_id}, {"$set": update_data})
         product.update(update_data)
     
     return Product(**product)
 
-@api_router.delete(\"/products/{product_id}\")
+@api_router.delete("/products/{product_id}")
 async def delete_product(product_id: str, current_user: dict = Depends(get_current_admin)):
-    result = await db.products.delete_one({\"id\": product_id})
+    result = await db.products.delete_one({"id": product_id})
     if result.deleted_count == 0:
-        raise HTTPException(status_code=404, detail=\"Product not found\")
-    return {\"message\": \"Product deleted\"}
+        raise HTTPException(status_code=404, detail="Product not found")
+    return {"message": "Product deleted"}
 
 # ==================== BANNER ROUTES ====================
 
-@api_router.get(\"/banners\", response_model=List[Banner])
+@api_router.get("/banners", response_model=List[Banner])
 async def get_banners():
-    banners = await db.banners.find({\"active\": True}, {\"_id\": 0}).sort(\"order\", 1).to_list(100)
+    banners = await db.banners.find({"active": True}, {"_id": 0}).sort("order", 1).to_list(100)
     return banners
 
-@api_router.get(\"/admin/banners\", response_model=List[Banner])
+@api_router.get("/admin/banners", response_model=List[Banner])
 async def get_all_banners(current_user: dict = Depends(get_current_admin)):
-    banners = await db.banners.find({}, {\"_id\": 0}).sort(\"order\", 1).to_list(100)
+    banners = await db.banners.find({}, {"_id": 0}).sort("order", 1).to_list(100)
     return banners
 
-@api_router.post(\"/admin/banners\", response_model=Banner)
+@api_router.post("/admin/banners", response_model=Banner)
 async def create_banner(banner: BannerCreate, current_user: dict = Depends(get_current_admin)):
     banner_doc = Banner(**banner.model_dump())
     await db.banners.insert_one(banner_doc.model_dump())
     return banner_doc
 
-@api_router.put(\"/admin/banners/{banner_id}\", response_model=Banner)
+@api_router.put("/admin/banners/{banner_id}", response_model=Banner)
 async def update_banner(banner_id: str, updates: BannerUpdate, current_user: dict = Depends(get_current_admin)):
-    banner = await db.banners.find_one({\"id\": banner_id}, {\"_id\": 0})
+    banner = await db.banners.find_one({"id": banner_id}, {"_id": 0})
     if not banner:
-        raise HTTPException(status_code=404, detail=\"Banner not found\")
+        raise HTTPException(status_code=404, detail="Banner not found")
     
     update_data = {k: v for k, v in updates.model_dump().items() if v is not None}
     if update_data:
-        await db.banners.update_one({\"id\": banner_id}, {\"$set\": update_data})
+        await db.banners.update_one({"id": banner_id}, {"$set": update_data})
         banner.update(update_data)
     
     return Banner(**banner)
 
-@api_router.delete(\"/admin/banners/{banner_id}\")
+@api_router.delete("/admin/banners/{banner_id}")
 async def delete_banner(banner_id: str, current_user: dict = Depends(get_current_admin)):
-    result = await db.banners.delete_one({\"id\": banner_id})
+    result = await db.banners.delete_one({"id": banner_id})
     if result.deleted_count == 0:
-        raise HTTPException(status_code=404, detail=\"Banner not found\")
-    return {\"message\": \"Banner deleted\"}
+        raise HTTPException(status_code=404, detail="Banner not found")
+    return {"message": "Banner deleted"}
 
 # ==================== CART ROUTES ====================
 
-@api_router.post(\"/cart/add\")
+@api_router.post("/cart/add")
 async def add_to_cart(item: CartItem, current_user: dict = Depends(get_current_user)):
-    user_id = current_user[\"sub\"]
+    user_id = current_user["sub"]
     
     # Check if product exists
-    product = await db.products.find_one({\"id\": item.product_id}, {\"_id\": 0})
+    product = await db.products.find_one({"id": item.product_id}, {"_id": 0})
     if not product:
-        raise HTTPException(status_code=404, detail=\"Product not found\")
+        raise HTTPException(status_code=404, detail="Product not found")
     
     # Check if item already in cart
     existing_item = await db.cart_items.find_one({
-        \"user_id\": user_id,
-        \"product_id\": item.product_id
+        "user_id": user_id,
+        "product_id": item.product_id
     })
     
     if existing_item:
         await db.cart_items.update_one(
-            {\"user_id\": user_id, \"product_id\": item.product_id},
-            {\"$inc\": {\"quantity\": item.quantity}}
+            {"user_id": user_id, "product_id": item.product_id},
+            {"$inc": {"quantity": item.quantity}}
         )
     else:
         await db.cart_items.insert_one({
-            \"user_id\": user_id,
-            \"product_id\": item.product_id,
-            \"quantity\": item.quantity
+            "user_id": user_id,
+            "product_id": item.product_id,
+            "quantity": item.quantity
         })
     
-    return {\"message\": \"Item added to cart\"}
+    return {"message": "Item added to cart"}
 
-@api_router.get(\"/cart\", response_model=CartResponse)
+@api_router.get("/cart", response_model=CartResponse)
 async def get_cart(current_user: dict = Depends(get_current_user)):
-    user_id = current_user[\"sub\"]
-    cart_items = await db.cart_items.find({\"user_id\": user_id}, {\"_id\": 0}).to_list(1000)
+    user_id = current_user["sub"]
+    cart_items = await db.cart_items.find({"user_id": user_id}, {"_id": 0}).to_list(1000)
     
     items = []
     total = 0.0
     
     for cart_item in cart_items:
-        product = await db.products.find_one({\"id\": cart_item[\"product_id\"]}, {\"_id\": 0})
+        product = await db.products.find_one({"id": cart_item["product_id"]}, {"_id": 0})
         if product:
             items.append(CartItemResponse(
                 product=Product(**product),
-                quantity=cart_item[\"quantity\"]
+                quantity=cart_item["quantity"]
             ))
-            total += product[\"price\"] * cart_item[\"quantity\"]
+            total += product["price"] * cart_item["quantity"]
     
     return CartResponse(items=items, total=total)
 
-@api_router.delete(\"/cart/{product_id}\")
+@api_router.delete("/cart/{product_id}")
 async def remove_from_cart(product_id: str, current_user: dict = Depends(get_current_user)):
-    user_id = current_user[\"sub\"]
-    result = await db.cart_items.delete_one({\"user_id\": user_id, \"product_id\": product_id})
+    user_id = current_user["sub"]
+    result = await db.cart_items.delete_one({"user_id": user_id, "product_id": product_id})
     if result.deleted_count == 0:
-        raise HTTPException(status_code=404, detail=\"Item not in cart\")
-    return {\"message\": \"Item removed from cart\"}
+        raise HTTPException(status_code=404, detail="Item not in cart")
+    return {"message": "Item removed from cart"}
 
-@api_router.delete(\"/cart\")
+@api_router.delete("/cart")
 async def clear_cart(current_user: dict = Depends(get_current_user)):
-    user_id = current_user[\"sub\"]
-    await db.cart_items.delete_many({\"user_id\": user_id})
-    return {\"message\": \"Cart cleared\"}
+    user_id = current_user["sub"]
+    await db.cart_items.delete_many({"user_id": user_id})
+    return {"message": "Cart cleared"}
 
-@api_router.put(\"/cart/{product_id}\")
+@api_router.put("/cart/{product_id}")
 async def update_cart_quantity(product_id: str, item: CartItem, current_user: dict = Depends(get_current_user)):
-    user_id = current_user[\"sub\"]
+    user_id = current_user["sub"]
     
     if item.quantity <= 0:
-        await db.cart_items.delete_one({\"user_id\": user_id, \"product_id\": product_id})
+        await db.cart_items.delete_one({"user_id": user_id, "product_id": product_id})
     else:
         await db.cart_items.update_one(
-            {\"user_id\": user_id, \"product_id\": product_id},
-            {\"$set\": {\"quantity\": item.quantity}}
+            {"user_id": user_id, "product_id": product_id},
+            {"$set": {"quantity": item.quantity}}
         )
     
-    return {\"message\": \"Cart updated\"}
+    return {"message": "Cart updated"}
 
 # ==================== ORDER & PAYMENT ROUTES ====================
 
-@api_router.post(\"/checkout/create-session\")
+@api_router.post("/checkout/create-session")
 async def create_checkout_session(request: Request, current_user: dict = Depends(get_current_user)):
-    user_id = current_user[\"sub\"]
-    user_email = current_user[\"email\"]
+    user_id = current_user["sub"]
+    user_email = current_user["email"]
     
     # Get cart items
-    cart_items = await db.cart_items.find({\"user_id\": user_id}, {\"_id\": 0}).to_list(1000)
+    cart_items = await db.cart_items.find({"user_id": user_id}, {"_id": 0}).to_list(1000)
     if not cart_items:
-        raise HTTPException(status_code=400, detail=\"Cart is empty\")
+        raise HTTPException(status_code=400, detail="Cart is empty")
     
     # Calculate total and prepare order items
     order_items = []
     total = 0.0
     
     for cart_item in cart_items:
-        product = await db.products.find_one({\"id\": cart_item[\"product_id\"]}, {\"_id\": 0})
+        product = await db.products.find_one({"id": cart_item["product_id"]}, {"_id": 0})
         if product:
             order_items.append(OrderItem(
-                product_id=product[\"id\"],
-                product_name=product[\"name\"],
-                price=product[\"price\"],
-                quantity=cart_item[\"quantity\"]
+                product_id=product["id"],
+                product_name=product["name"],
+                price=product["price"],
+                quantity=cart_item["quantity"]
             ))
-            total += product[\"price\"] * cart_item[\"quantity\"]
+            total += product["price"] * cart_item["quantity"]
     
     # Create order
     order_id = str(uuid.uuid4())
@@ -457,27 +457,27 @@ async def create_checkout_session(request: Request, current_user: dict = Depends
         user_email=user_email,
         items=order_items,
         total=total,
-        status=\"pending\",
-        payment_status=\"pending\"
+        status="pending",
+        payment_status="pending"
     )
     
     # Get host URL from request
     host_url = str(request.base_url).rstrip('/')
     
     # Setup Stripe
-    webhook_url = f\"{host_url}/api/webhook/stripe\"
+    webhook_url = f"{host_url}/api/webhook/stripe"
     stripe_checkout = StripeCheckout(api_key=STRIPE_API_KEY, webhook_url=webhook_url)
     
     # Create checkout session
-    success_url = f\"{host_url.replace('8001', '3000')}/checkout/success?session_id={{CHECKOUT_SESSION_ID}}\"
-    cancel_url = f\"{host_url.replace('8001', '3000')}/cart\"
+    success_url = f"{host_url.replace('8001', '3000')}/checkout/success?session_id={{CHECKOUT_SESSION_ID}}"
+    cancel_url = f"{host_url.replace('8001', '3000')}/cart"
     
     checkout_request = CheckoutSessionRequest(
         amount=total,
-        currency=\"usd\",
+        currency="usd",
         success_url=success_url,
         cancel_url=cancel_url,
-        metadata={\"order_id\": order_id, \"user_email\": user_email}
+        metadata={"order_id": order_id, "user_email": user_email}
     )
     
     session: CheckoutSessionResponse = await stripe_checkout.create_checkout_session(checkout_request)
@@ -488,143 +488,220 @@ async def create_checkout_session(request: Request, current_user: dict = Depends
     
     # Create payment transaction
     await db.payment_transactions.insert_one({
-        \"session_id\": session.session_id,
-        \"order_id\": order_id,
-        \"user_id\": user_id,
-        \"user_email\": user_email,
-        \"amount\": total,
-        \"currency\": \"usd\",
-        \"payment_status\": \"pending\",
-        \"created_at\": datetime.now(timezone.utc).isoformat()
+        "session_id": session.session_id,
+        "order_id": order_id,
+        "user_id": user_id,
+        "user_email": user_email,
+        "amount": total,
+        "currency": "usd",
+        "payment_status": "pending",
+        "created_at": datetime.now(timezone.utc).isoformat()
     })
     
-    return {\"url\": session.url, \"session_id\": session.session_id}
+    return {"url": session.url, "session_id": session.session_id}
 
-@api_router.get(\"/checkout/status/{session_id}\")
+@api_router.get("/checkout/status/{session_id}")
 async def check_payment_status(session_id: str, current_user: dict = Depends(get_current_user)):
     # Check if already processed
-    transaction = await db.payment_transactions.find_one({\"session_id\": session_id}, {\"_id\": 0})
+    transaction = await db.payment_transactions.find_one({"session_id": session_id}, {"_id": 0})
     if not transaction:
-        raise HTTPException(status_code=404, detail=\"Transaction not found\")
+        raise HTTPException(status_code=404, detail="Transaction not found")
     
-    if transaction.get(\"payment_status\") == \"paid\":
+    if transaction.get("payment_status") == "paid":
         return {
-            \"status\": \"complete\",
-            \"payment_status\": \"paid\",
-            \"order_id\": transaction[\"order_id\"]
+            "status": "complete",
+            "payment_status": "paid",
+            "order_id": transaction["order_id"]
         }
     
     # Setup Stripe
     host_url = os.environ.get('REACT_APP_BACKEND_URL', 'http://localhost:8001')
-    webhook_url = f\"{host_url}/api/webhook/stripe\"
+    webhook_url = f"{host_url}/api/webhook/stripe"
     stripe_checkout = StripeCheckout(api_key=STRIPE_API_KEY, webhook_url=webhook_url)
     
     # Get status from Stripe
     checkout_status: CheckoutStatusResponse = await stripe_checkout.get_checkout_status(session_id)
     
     # Update transaction and order
-    if checkout_status.payment_status == \"paid\" and transaction.get(\"payment_status\") != \"paid\":
-        await db.payment_transactions.update_one(\n            {\"session_id\": session_id},\n            {\"$set\": {\"payment_status\": \"paid\", \"status\": \"complete\"}}\n        )\n        \n        order_id = transaction[\"order_id\"]\n        order = await db.orders.find_one({\"id\": order_id}, {\"_id\": 0})\n        \n        if order:\n            await db.orders.update_one(\n                {\"id\": order_id},\n                {\"$set\": {\"payment_status\": \"paid\", \"status\": \"processing\"}}\n            )\n            \n            # Clear cart\n            await db.cart_items.delete_many({\"user_id\": transaction[\"user_id\"]})\n            \n            # Send confirmation email\n            email_items = [{\"name\": item[\"product_name\"], \"quantity\": item[\"quantity\"], \"price\": item[\"price\"]} for item in order[\"items\"]]\n            send_order_confirmation(transaction[\"user_email\"], order_id, order[\"total\"], email_items)\n    \n    return {\n        \"status\": checkout_status.status,\n        \"payment_status\": checkout_status.payment_status,\n        \"order_id\": transaction[\"order_id\"]\n    }
+    if checkout_status.payment_status == "paid" and transaction.get("payment_status") != "paid":
+        await db.payment_transactions.update_one(
+            {"session_id": session_id},
+            {"$set": {"payment_status": "paid", "status": "complete"}}
+        )
+        
+        order_id = transaction["order_id"]
+        order = await db.orders.find_one({"id": order_id}, {"_id": 0})
+        
+        if order:
+            await db.orders.update_one(
+                {"id": order_id},
+                {"$set": {"payment_status": "paid", "status": "processing"}}
+            )
+            
+            # Clear cart
+            await db.cart_items.delete_many({"user_id": transaction["user_id"]})
+            
+            # Send confirmation email
+            email_items = [{"name": item["product_name"], "quantity": item["quantity"], "price": item["price"]} for item in order["items"]]
+            send_order_confirmation(transaction["user_email"], order_id, order["total"], email_items)
+    
+    return {
+        "status": checkout_status.status,
+        "payment_status": checkout_status.payment_status,
+        "order_id": transaction["order_id"]
+    }
 
-@api_router.post(\"/webhook/stripe\")\nasync def stripe_webhook(request: Request):\n    body = await request.body()\n    signature = request.headers.get(\"Stripe-Signature\")\n    \n    try:\n        host_url = str(request.base_url).rstrip('/')\n        webhook_url = f\"{host_url}/api/webhook/stripe\"\n        stripe_checkout = StripeCheckout(api_key=STRIPE_API_KEY, webhook_url=webhook_url)\n        \n        webhook_response = await stripe_checkout.handle_webhook(body, signature)\n        \n        # Handle successful payment\n        if webhook_response.payment_status == \"paid\":\n            transaction = await db.payment_transactions.find_one(\n                {\"session_id\": webhook_response.session_id},\n                {\"_id\": 0}\n            )\n            \n            if transaction and transaction.get(\"payment_status\") != \"paid\":\n                await db.payment_transactions.update_one(\n                    {\"session_id\": webhook_response.session_id},\n                    {\"$set\": {\"payment_status\": \"paid\", \"status\": \"complete\"}}\n                )\n                \n                order_id = transaction[\"order_id\"]\n                await db.orders.update_one(\n                    {\"id\": order_id},\n                    {\"$set\": {\"payment_status\": \"paid\", \"status\": \"processing\"}}\n                )\n        \n        return {\"status\": \"success\"}\n    except Exception as e:\n        logging.error(f\"Webhook error: {str(e)}\")\n        raise HTTPException(status_code=400, detail=str(e))
+@api_router.post("/webhook/stripe")
+async def stripe_webhook(request: Request):
+    body = await request.body()
+    signature = request.headers.get("Stripe-Signature")
+    
+    try:
+        host_url = str(request.base_url).rstrip('/')
+        webhook_url = f"{host_url}/api/webhook/stripe"
+        stripe_checkout = StripeCheckout(api_key=STRIPE_API_KEY, webhook_url=webhook_url)
+        
+        webhook_response = await stripe_checkout.handle_webhook(body, signature)
+        
+        # Handle successful payment
+        if webhook_response.payment_status == "paid":
+            transaction = await db.payment_transactions.find_one(
+                {"session_id": webhook_response.session_id},
+                {"_id": 0}
+            )
+            
+            if transaction and transaction.get("payment_status") != "paid":
+                await db.payment_transactions.update_one(
+                    {"session_id": webhook_response.session_id},
+                    {"$set": {"payment_status": "paid", "status": "complete"}}
+                )
+                
+                order_id = transaction["order_id"]
+                await db.orders.update_one(
+                    {"id": order_id},
+                    {"$set": {"payment_status": "paid", "status": "processing"}}
+                )
+        
+        return {"status": "success"}
+    except Exception as e:
+        logging.error(f"Webhook error: {str(e)}")
+        raise HTTPException(status_code=400, detail=str(e))
 
 # ==================== ORDER ROUTES ====================
 
-@api_router.get(\"/orders\", response_model=List[Order])
+@api_router.get("/orders", response_model=List[Order])
 async def get_user_orders(current_user: dict = Depends(get_current_user)):
-    user_id = current_user[\"sub\"]
-    orders = await db.orders.find({\"user_id\": user_id}, {\"_id\": 0}).sort(\"created_at\", -1).to_list(1000)
+    user_id = current_user["sub"]
+    orders = await db.orders.find({"user_id": user_id}, {"_id": 0}).sort("created_at", -1).to_list(1000)
     return orders
 
-@api_router.get(\"/orders/{order_id}\", response_model=Order)
+@api_router.get("/orders/{order_id}", response_model=Order)
 async def get_order(order_id: str, current_user: dict = Depends(get_current_user)):
-    user_id = current_user[\"sub\"]
-    is_admin = current_user.get(\"is_admin\", False)
+    user_id = current_user["sub"]
+    is_admin = current_user.get("is_admin", False)
     
-    query = {\"id\": order_id}
+    query = {"id": order_id}
     if not is_admin:
-        query[\"user_id\"] = user_id
+        query["user_id"] = user_id
     
-    order = await db.orders.find_one(query, {\"_id\": 0})
+    order = await db.orders.find_one(query, {"_id": 0})
     if not order:
-        raise HTTPException(status_code=404, detail=\"Order not found\")
+        raise HTTPException(status_code=404, detail="Order not found")
     return order
 
-@api_router.get(\"/admin/orders\", response_model=List[Order])
+@api_router.get("/admin/orders", response_model=List[Order])
 async def get_all_orders(current_user: dict = Depends(get_current_admin)):
-    orders = await db.orders.find({}, {\"_id\": 0}).sort(\"created_at\", -1).to_list(1000)
+    orders = await db.orders.find({}, {"_id": 0}).sort("created_at", -1).to_list(1000)
     return orders
 
-@api_router.put(\"/admin/orders/{order_id}/status\")
+@api_router.put("/admin/orders/{order_id}/status")
 async def update_order_status(order_id: str, status: dict, current_user: dict = Depends(get_current_admin)):
-    result = await db.orders.update_one({\"id\": order_id}, {\"$set\": {\"status\": status[\"status\"]}})
+    result = await db.orders.update_one({"id": order_id}, {"$set": {"status": status["status"]}})
     if result.matched_count == 0:
-        raise HTTPException(status_code=404, detail=\"Order not found\")
-    return {\"message\": \"Order status updated\"}
+        raise HTTPException(status_code=404, detail="Order not found")
+    return {"message": "Order status updated"}
 
 # ==================== REVIEW ROUTES ====================
 
-@api_router.get(\"/reviews\", response_model=List[Review])
+@api_router.get("/reviews", response_model=List[Review])
 async def get_reviews(product_id: Optional[str] = None):
-    query = {\"approved\": True}
+    query = {"approved": True}
     if product_id:
-        query[\"product_id\"] = product_id
+        query["product_id"] = product_id
     
-    reviews = await db.reviews.find(query, {\"_id\": 0}).sort(\"created_at\", -1).to_list(1000)
+    reviews = await db.reviews.find(query, {"_id": 0}).sort("created_at", -1).to_list(1000)
     return reviews
 
-@api_router.post(\"/reviews\", response_model=Review)
+@api_router.post("/reviews", response_model=Review)
 async def create_review(review: ReviewCreate, current_user: dict = Depends(get_current_user)):
-    review_doc = Review(\n        **review.model_dump(),\n        user_id=current_user[\"sub\"]\n    )\n    await db.reviews.insert_one(review_doc.model_dump())\n    \n    # Notify admin\n    product_name = \"General Review\"\n    if review.product_id:\n        product = await db.products.find_one({\"id\": review.product_id}, {\"_id\": 0})\n        if product:\n            product_name = product[\"name\"]\n    \n    send_review_notification(\"admin@luxurystore.com\", review.name, product_name)\n    \n    return review_doc
+    review_doc = Review(
+        **review.model_dump(),
+        user_id=current_user["sub"]
+    )
+    await db.reviews.insert_one(review_doc.model_dump())
+    
+    # Notify admin
+    product_name = "General Review"
+    if review.product_id:
+        product = await db.products.find_one({"id": review.product_id}, {"_id": 0})
+        if product:
+            product_name = product["name"]
+    
+    send_review_notification("admin@luxurystore.com", review.name, product_name)
+    
+    return review_doc
 
-@api_router.get(\"/admin/reviews\", response_model=List[Review])
+@api_router.get("/admin/reviews", response_model=List[Review])
 async def get_all_reviews(current_user: dict = Depends(get_current_admin)):
-    reviews = await db.reviews.find({}, {\"_id\": 0}).sort(\"created_at\", -1).to_list(1000)
+    reviews = await db.reviews.find({}, {"_id": 0}).sort("created_at", -1).to_list(1000)
     return reviews
 
-@api_router.put(\"/admin/reviews/{review_id}/approve\")
+@api_router.put("/admin/reviews/{review_id}/approve")
 async def approve_review(review_id: str, approval: ReviewApproval, current_user: dict = Depends(get_current_admin)):
-    result = await db.reviews.update_one({\"id\": review_id}, {\"$set\": {\"approved\": approval.approved}})
+    result = await db.reviews.update_one({"id": review_id}, {"$set": {"approved": approval.approved}})
     if result.matched_count == 0:
-        raise HTTPException(status_code=404, detail=\"Review not found\")
-    return {\"message\": \"Review updated\"}
+        raise HTTPException(status_code=404, detail="Review not found")
+    return {"message": "Review updated"}
 
-@api_router.delete(\"/admin/reviews/{review_id}\")
+@api_router.delete("/admin/reviews/{review_id}")
 async def delete_review(review_id: str, current_user: dict = Depends(get_current_admin)):
-    result = await db.reviews.delete_one({\"id\": review_id})
+    result = await db.reviews.delete_one({"id": review_id})
     if result.deleted_count == 0:
-        raise HTTPException(status_code=404, detail=\"Review not found\")
-    return {\"message\": \"Review deleted\"}
+        raise HTTPException(status_code=404, detail="Review not found")
+    return {"message": "Review deleted"}
 
 # ==================== SITE SETTINGS ROUTES ====================
 
-@api_router.get(\"/settings\", response_model=SiteSettings)
+@api_router.get("/settings", response_model=SiteSettings)
 async def get_settings():
-    settings = await db.site_settings.find_one({}, {\"_id\": 0})
+    settings = await db.site_settings.find_one({}, {"_id": 0})
     if not settings:
         # Return defaults
         return SiteSettings()
     return SiteSettings(**settings)
 
-@api_router.put(\"/admin/settings\", response_model=SiteSettings)
+@api_router.put("/admin/settings", response_model=SiteSettings)
 async def update_settings(updates: SiteSettingsUpdate, current_user: dict = Depends(get_current_admin)):
-    settings = await db.site_settings.find_one({}, {\"_id\": 0})
+    settings = await db.site_settings.find_one({}, {"_id": 0})
     
     if settings:
         update_data = {k: v for k, v in updates.model_dump().items() if v is not None}
         if update_data:
-            await db.site_settings.update_one({}, {\"$set\": update_data})
+            await db.site_settings.update_one({}, {"$set": update_data})
             settings.update(update_data)
     else:
-        settings = SiteSettings(**updates.model_dump(exclude_none=True))\n        await db.site_settings.insert_one(settings.model_dump())
+        settings = SiteSettings(**updates.model_dump(exclude_none=True))
+        await db.site_settings.insert_one(settings.model_dump())
     
     return SiteSettings(**settings)
 
 # ==================== CATEGORIES ROUTE ====================
 
-@api_router.get(\"/categories\")
+@api_router.get("/categories")
 async def get_categories():
-    \"\"\"Get unique product categories\"\"\"\n    categories = await db.products.distinct(\"category\")\n    return categories
+    """Get unique product categories"""
+    categories = await db.products.distinct("category")
+    return categories
 
 # Include the router in the main app
 app.include_router(api_router)
@@ -633,8 +710,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_credentials=True,
     allow_origins=os.environ.get('CORS_ORIGINS', '*').split(','),
-    allow_methods=[\"*\"],
-    allow_headers=[\"*\"],
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Configure logging
@@ -644,6 +721,6 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-@app.on_event(\"shutdown\")
+@app.on_event("shutdown")
 async def shutdown_db_client():
     client.close()
