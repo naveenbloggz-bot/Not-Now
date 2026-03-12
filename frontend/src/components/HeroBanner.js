@@ -27,8 +27,14 @@ const HeroBanner = () => {
     emblaApi.on('select', onSelect);
     onSelect();
 
+    // Auto-play
+    const intervalId = setInterval(() => {
+      if (emblaApi) emblaApi.scrollNext();
+    }, 5000);
+
     return () => {
       emblaApi.off('select', onSelect);
+      clearInterval(intervalId);
     };
   }, [emblaApi]);
 

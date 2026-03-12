@@ -1,6 +1,4 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
-import api from '../lib/api';
-import { useAuth } from './AuthContext';
 
 const CartContext = createContext();
 
@@ -15,67 +13,101 @@ export const useCart = () => {
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState({ items: [], total: 0 });
   const [loading, setLoading] = useState(false);
-  const { user } = useAuth();
 
-  const fetchCart = async () => {
-    if (!user) {
-      setCart({ items: [], total: 0 });
-      return;
+  // Load cart from localStorage on mount
+  useEffect(() => {
+    const savedCart = localStorage.getItem('cart');
+    if (savedCart) {
+      setCart(JSON.parse(savedCart));
     }
-    
+  }, []);
+
+  // Save cart to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem('cart', JSON.stringify(cart));
+  }, [cart]);
+
+  const addToCart = async (product, quantity = 1) => {
+    setLoading(true);
     try {
-      setLoading(true);
-      const response = await api.get('/cart');
-      setCart(response.data);
+      const existingItemIndex = cart.items.findIndex(
+        item => item.product.id === product.id
+      );
+
+      let newItems;
+      if (existingItemIndex >= 0) {
+        // Update quantity
+        newItems = [...cart.items];
+        newItems[existingItemIndex].quantity += quantity;
+      } else {
+        // Add new item
+        newItems = [...cart.items, { product, quantity }];
+      }
+
+      const total = newItems.reduce(
+        (sum, item) => sum + item.product.price * item.quantity,
+        0
+      );
+
+      setCart({ items: newItems, total });
     } catch (error) {
-      console.error('Failed to fetch cart:', error);
+      throw error;
     } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    fetchCart();
-  }, [user]);
-
-  const addToCart = async (productId, quantity = 1) => {
-    try {
-      await api.post('/cart/add', { product_id: productId, quantity });
-      await fetchCart();
-    } catch (error) {
-      throw error;
-    }
-  };
-
   const removeFromCart = async (productId) => {
+    setLoading(true);
     try {
-      await api.delete(`/cart/${productId}`);
-      await fetchCart();
+      const newItems = cart.items.filter(item => item.product.id !== productId);
+      const total = newItems.reduce(
+        (sum, item) => sum + item.product.price * item.quantity,
+        0
+      );
+      setCart({ items: newItems, total });
     } catch (error) {
       throw error;
+    } finally {
+      setLoading(false);
     }
   };
 
   const updateQuantity = async (productId, quantity) => {
+    setLoading(true);
     try {
-      await api.put(`/cart/${productId}`, { product_id: productId, quantity });
-      await fetchCart();
+      if (quantity <= 0) {
+        await removeFromCart(productId);
+        return;
+      }
+
+      const newItems = cart.items.map(item =>
+        item.product.id === productId ? { ...item, quantity } : item
+      );
+
+      const total = newItems.reduce(
+        (sum, item) => sum + item.product.price * item.quantity,
+        0
+      );
+
+      setCart({ items: newItems, total });
     } catch (error) {
       throw error;
+    } finally {
+      setLoading(false);
     }
   };
 
   const clearCart = async () => {
-    try {
-      await api.delete('/cart');
-      setCart({ items: [], total: 0 });
-    } catch (error) {
-      throw error;
-    }
+    setCart({ items: [], total: 0 });
+  };
+
+  const refreshCart = async () => {
+    // For localStorage cart, no need to refresh from server
   };
 
   return (
-    <CartContext.Provider value={{ cart, loading, addToCart, removeFromCart, updateQuantity, clearCart, refreshCart: fetchCart }}>
+    <CartContext.Provider value={{ cart, loading, addToCart, removeFromCart, updateQuantity, clearCart, refreshCart }}>
       {children}
     </CartContext.Provider>
   );

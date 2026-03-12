@@ -1,17 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Minus, Plus, Star } from 'lucide-react';
 import { Button } from '../components/ui/button';
-import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import api from '../lib/api';
 import { toast } from 'sonner';
 
 const ProductDetail = () => {
   const { id } = useParams();
-  const navigate = useNavigate();
-  const { user } = useAuth();
   const { addToCart } = useCart();
   const [product, setProduct] = useState(null);
   const [reviews, setReviews] = useState([]);
@@ -38,14 +35,8 @@ const ProductDetail = () => {
   }, [id]);
 
   const handleAddToCart = async () => {
-    if (!user) {
-      toast.error('Please login to add items to cart');
-      navigate('/login');
-      return;
-    }
-
     try {
-      await addToCart(product.id, quantity);
+      await addToCart(product, quantity);
       toast.success('Added to cart!');
     } catch (error) {
       toast.error('Failed to add to cart');

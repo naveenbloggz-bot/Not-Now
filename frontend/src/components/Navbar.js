@@ -43,7 +43,7 @@ const Navbar = () => {
           </Link>
 
           {/* Desktop Navigation */}
-          <div className="hidden md:flex items-center space-x-8">
+          <div className="hidden md:flex items-center gap-8">
             {navLinks.map((link) => (
               <Link
                 key={link.path}
@@ -60,54 +60,22 @@ const Navbar = () => {
 
           {/* Right side actions */}
           <div className="flex items-center space-x-4">
-            {/* User Menu */}
-            {user ? (
-              <div className="hidden md:flex items-center space-x-4">
-                <Link
-                  to={user.is_admin ? '/admin' : '/dashboard'}
-                  data-testid="user-dashboard-link"
-                  className="flex items-center space-x-2 uppercase tracking-[0.1em] text-xs font-bold hover:opacity-50 transition-opacity"
-                >
-                  <User size={18} />
-                  <span>{user.is_admin ? 'ADMIN' : 'ACCOUNT'}</span>
-                </Link>
-                <button
-                  onClick={logout}
-                  data-testid="logout-button"
-                  className="uppercase tracking-[0.1em] text-xs font-bold hover:opacity-50 transition-opacity"
-                >
-                  LOGOUT
-                </button>
-              </div>
-            ) : (
-              <Link
-                to="/login"
-                data-testid="login-link"
-                className="hidden md:flex items-center space-x-2 uppercase tracking-[0.1em] text-xs font-bold hover:opacity-50 transition-opacity"
-              >
-                <User size={18} />
-                <span>LOGIN</span>
-              </Link>
-            )}
-
             {/* Cart */}
-            {user && (
-              <Link
-                to="/cart"
-                data-testid="cart-link"
-                className="relative flex items-center hover:opacity-50 transition-opacity"
-              >
-                <ShoppingBag size={20} />
-                {cartItemCount > 0 && (
-                  <span
-                    data-testid="cart-count"
-                    className="absolute -top-2 -right-2 bg-black text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold"
-                  >
-                    {cartItemCount}
-                  </span>
-                )}
-              </Link>
-            )}
+            <Link
+              to="/cart"
+              data-testid="cart-link"
+              className="relative flex items-center hover:opacity-50 transition-opacity"
+            >
+              <ShoppingBag size={20} />
+              {cartItemCount > 0 && (
+                <span
+                  data-testid="cart-count"
+                  className="absolute -top-2 -right-2 bg-black text-white text-xs w-5 h-5 rounded-full flex items-center justify-center font-bold"
+                >
+                  {cartItemCount}
+                </span>
+              )}
+            </Link>
 
             {/* Mobile Menu Button */}
             <button
@@ -134,34 +102,6 @@ const Navbar = () => {
                   {link.name}
                 </Link>
               ))}
-              {user ? (
-                <>
-                  <Link
-                    to={user.is_admin ? '/admin' : '/dashboard'}
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="uppercase tracking-[0.1em] text-xs font-bold hover:opacity-50 transition-opacity"
-                  >
-                    {user.is_admin ? 'ADMIN' : 'ACCOUNT'}
-                  </Link>
-                  <button
-                    onClick={() => {
-                      logout();
-                      setMobileMenuOpen(false);
-                    }}
-                    className="uppercase tracking-[0.1em] text-xs font-bold hover:opacity-50 transition-opacity text-left"
-                  >
-                    LOGOUT
-                  </button>
-                </>
-              ) : (
-                <Link
-                  to="/login"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="uppercase tracking-[0.1em] text-xs font-bold hover:opacity-50 transition-opacity"
-                >
-                  LOGIN
-                </Link>
-              )}
             </div>
           </div>
         )}

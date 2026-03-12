@@ -587,6 +587,38 @@ async def stripe_webhook(request: Request):
         logging.error(f"Webhook error: {str(e)}")
         raise HTTPException(status_code=400, detail=str(e))
 
+# ==================== GUEST ORDER ROUTE ====================
+
+class GuestOrderCreate(BaseModel):
+    items: List[OrderItem]
+    total: float
+    contact_info: dict
+
+@api_router.post("/guest/orders")
+async def create_guest_order(order_data: GuestOrderCreate):
+    """Create order without authentication"""
+    order_id = str(uuid.uuid4())
+    
+    order_doc = {
+        "id": order_id,
+        "user_id": None,
+        "user_email": order_data.contact_info.get("email", ""),
+        "items": [item.model_dump() for item in order_data.items],
+        "total": order_data.total,
+        "status": "pending",
+        "payment_status": "pending",
+        "contact_info": order_data.contact_info,
+        "created_at": datetime.now(timezone.utc).isoformat()
+    }
+    
+    await db.orders.insert_one(order_doc)
+    
+    # Send confirmation email if configured
+    email_items = [{"name": item.product_name, "quantity": item.quantity, "price": item.price} for item in order_data.items]
+    send_order_confirmation(order_data.contact_info.get("email", ""), order_id, order_data.total, email_items)
+    
+    return {"order_id": order_id, "message": "Order received successfully"}
+
 # ==================== ORDER ROUTES ====================
 
 @api_router.get("/orders", response_model=List[Order])

@@ -64,32 +64,11 @@ function App() {
                 <Route path="reviews" element={<Reviews />} />
                 <Route path="login" element={<Login />} />
                 <Route path="register" element={<Register />} />
+                <Route path="cart" element={<Cart />} />
+                <Route path="checkout" element={<Checkout />} />
+                <Route path="checkout/success" element={<CheckoutSuccess />} />
                 
                 {/* Protected Routes */}
-                <Route
-                  path="cart"
-                  element={
-                    <ProtectedRoute>
-                      <Cart />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="checkout"
-                  element={
-                    <ProtectedRoute>
-                      <Checkout />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="checkout/success"
-                  element={
-                    <ProtectedRoute>
-                      <CheckoutSuccess />
-                    </ProtectedRoute>
-                  }
-                />
                 <Route
                   path="dashboard"
                   element={
