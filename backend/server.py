@@ -18,7 +18,7 @@ from auth import (
     get_current_user,
     get_current_admin
 )
-from email_service import send_order_confirmation, send_review_notification
+from email_service import send_order_confirmation, send_review_notification, send_order_notification_to_admin
 from emergentintegrations.payments.stripe.checkout import (
     StripeCheckout,
     CheckoutSessionResponse,
@@ -613,9 +613,12 @@ async def create_guest_order(order_data: GuestOrderCreate):
     
     await db.orders.insert_one(order_doc)
     
-    # Send confirmation email if configured
+    # Send confirmation email to customer
     email_items = [{"name": item.product_name, "quantity": item.quantity, "price": item.price} for item in order_data.items]
     send_order_confirmation(order_data.contact_info.get("email", ""), order_id, order_data.total, email_items)
+    
+    # Send notification email to admin
+    send_order_notification_to_admin(order_id, order_data.total, email_items, order_data.contact_info)
     
     return {"order_id": order_id, "message": "Order received successfully"}
 

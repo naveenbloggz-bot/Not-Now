@@ -50,8 +50,15 @@ const CheckoutSuccess = () => {
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
                 <Button
-                  onClick={() => navigate('/shop')}
+                  onClick={() => navigate('/')}
+                  data-testid="return-home-button"
                   className="rounded-none uppercase tracking-[0.15em] font-bold text-sm h-12 px-8 bg-black text-white border border-black hover:bg-transparent hover:text-black transition-all duration-300"
+                >
+                  RETURN TO HOME
+                </Button>
+                <Button
+                  onClick={() => navigate('/shop')}
+                  className="rounded-none uppercase tracking-[0.15em] font-bold text-sm h-12 px-8 bg-transparent text-black border border-black hover:bg-black hover:text-white transition-all duration-300"
                 >
                   CONTINUE SHOPPING
                 </Button>

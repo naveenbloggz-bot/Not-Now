@@ -53,6 +53,44 @@ def send_order_confirmation(email: str, order_id: str, total: float, items: list
     
     return send_email(email, f"Order Confirmation - {order_id}", html_content)
 
+def send_order_notification_to_admin(order_id: str, total: float, items: list, contact_info: dict):
+    """Send order notification to admin email"""
+    admin_email = "notnowstud@gmail.com"
+    
+    items_html = "".join([
+        f"<li><strong>{item['name']}</strong> x {item['quantity']} - ${item['price']:.2f}</li>"
+        for item in items
+    ])
+    
+    html_content = f"""
+    <html>
+        <body style="font-family: Arial, sans-serif; padding: 20px;">
+            <h2>New Order Received!</h2>
+            <p><strong>Order ID:</strong> {order_id}</p>
+            
+            <h3>Customer Details:</h3>
+            <ul>
+                <li><strong>Name:</strong> {contact_info.get('name', 'N/A')}</li>
+                <li><strong>Email:</strong> {contact_info.get('email', 'N/A')}</li>
+                <li><strong>Phone:</strong> {contact_info.get('phone', 'N/A')}</li>
+                <li><strong>Address:</strong> {contact_info.get('address', 'N/A')}</li>
+                <li><strong>City:</strong> {contact_info.get('city', 'N/A')}</li>
+                <li><strong>Postal Code:</strong> {contact_info.get('postalCode', 'N/A')}</li>
+            </ul>
+            
+            <h3>Order Items:</h3>
+            <ul>{items_html}</ul>
+            
+            <p><strong>Order Total:</strong> ${total:.2f}</p>
+            
+            <hr>
+            <p style="color: #666; font-size: 12px;">This email was sent from NOT NOW e-commerce website.</p>
+        </body>
+    </html>
+    """
+    
+    return send_email(admin_email, f"New Order #{order_id}", html_content)
+
 def send_review_notification(admin_email: str, customer_name: str, product_name: str):
     """Notify admin of new review submission"""
     html_content = f"""
